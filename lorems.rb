@@ -7,7 +7,7 @@ require_relative 'freqcount'
 options = {
   :load => 'words.db',
   :pmax => 1,
-  :pmin => 0,
+  :pmin => Float::EPSILON,
   :csv => STDOUT,
   :debug => false}
 
