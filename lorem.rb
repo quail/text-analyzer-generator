@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require 'optparse'
+require 'csv'
 require_relative 'freqcount'
 
 options = {
@@ -42,8 +43,6 @@ end
 
 fc.load(options[:load])
 
-options[:count].to_i.times do
-  options[:output].write("#{fc.lorem}\n")
-end
-
-
+csv = CSV.new(options[:output])
+options[:count].to_i.times { csv<<fc.lorem }
+csv.close

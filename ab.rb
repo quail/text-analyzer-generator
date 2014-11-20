@@ -4,7 +4,7 @@ $debug = true
 $depth = 3
 
 #
-# fc - frequency of characters f[char]->count
+# fc - frequency of characters f[char]->count in ab.txt
 # 
 fc = Hash.new()
 

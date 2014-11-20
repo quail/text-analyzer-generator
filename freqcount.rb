@@ -46,7 +46,8 @@ class FreqCount
   end
 
   def lorem
-    ans=""
+    word=""
+    prob=1
     @at = Array.new(@length,:start)
     while @at.last != :end do
       @at.shift
@@ -60,8 +61,9 @@ class FreqCount
       tmp.each do |char,weight|
         if p < weight then
           @at << char
+          prob = prob * (weight/total)
           if char != :end then
-            ans << char
+            word << char
           end
           break
         else
@@ -69,7 +71,7 @@ class FreqCount
         end
       end
     end
-    return ans
+    return [word,prob]
   end
   def to_s
     "[length=#{@length}, total=#{@total}]: #{@weights}"

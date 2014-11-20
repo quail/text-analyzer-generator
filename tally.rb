@@ -52,11 +52,12 @@ CSV.foreach(options[:csv]) do |row|
   if options[:debug] then
     print "row #{count}: #{row}\n"
   end
+  word=row[0]
+  weight=options[:weight]
   if row.length > 1 then
-    fc.add_password(row[0]||"",row[1].to_f*options[:weight])
-  else
-    fc.add_password(row[0]||"",options[:weight])
+    weight = weight*row[1].to_f
   end
+  fc.add_word(word,weight)
   count=count+1
 end
 
