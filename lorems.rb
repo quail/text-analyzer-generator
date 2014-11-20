@@ -7,8 +7,8 @@ require_relative 'freqcount'
 options = {
   :load => 'words.db',
   :pmax => 1,
-  :pmin => 1e-1,
-  :output => STDOUT,
+  :pmin => 0,
+  :csv => STDOUT,
   :debug => false}
 
 OptionParser.new do |opts|
@@ -22,11 +22,11 @@ OptionParser.new do |opts|
   opts.on("--pmax [MAX]","prob upper bound") do |pmax|
     options[:pmax]=pmax.to_f
   end
-  opts.on("-o","--out [FILE]","output") do |file|
+  opts.on("-c","--csv [FILE]","word,prob csv") do |file|
     if file != "/dev/stdout" then
-      options[:output]=File.open(file,"w")
+      options[:csv]=File.open(file,"w")
     else
-      options[:output]=STDOUT
+      options[:csv]=STDOUT
     end
   end
   opts.on("-d","--debug","debug") do |debug|
@@ -47,8 +47,26 @@ end
 
 fc.load(options[:load])
 
-csv = CSV.new(options[:output])
-fc.lorems(options[:pmin],options[:pmax]) do |word,prob|
-  csv << [word,prob]
+csv = CSV.new(options[:csv])
+pmin=options[:pmin]
+pmax=options[:pmax]
+if pmax == 1.0 then
+  pmax = 2.0
+end
+
+sum=0.0
+
+while pmin <= pmax/2.0 do
+  fc.lorems(pmax/2.0,pmax) do |word,prob|
+    sum = sum + prob
+    csv << [word,prob,sum]
+  end
+  pmax = pmax/2.0
+end
+if pmin < pmax then
+  fc.lorems(pmin,pmax) do |word,prob|
+    sum = sum + prob
+    csv << [word,prob,sum]
+  end
 end
 csv.close
