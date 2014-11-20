@@ -14,7 +14,7 @@ options = {
 
 OptionParser.new do |opts|
   opts.banner = "Usage: testfreqcount [--load nil] [-c|--csv words.csv] [-s|--save weights.db] [-l|--length 2] [-w|--weight 1] [-d|--debug]"
-  opts.on(nil, "--load [INPUT]","dump (ruby marshal) input file") do |file|
+  opts.on("--load [INPUT]","dump (ruby marshal) input file") do |file|
     options[:load]=file
   end
   opts.on("-c","--csv [INPUT]","csv (name,weight=1) input file") do |file|
