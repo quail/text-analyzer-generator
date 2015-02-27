@@ -4,9 +4,15 @@ REPS=0.0000001
 
 all : words.csv words-1.db words-2.db words-3.db words-4.db words-5.db words-6.db words-1.out words-2.out words-3.out words-4.out words-5.out words-6.out
 
-tests : test1.ok test2.ok
+tests : test1.ok test2.ok test-random-words.ok
 %.csv : split.rb freqcount.rb %.txt
 	./split.rb --out $@ $<
+
+test-random-words.out: random-words.rb test-random-words.csv
+	./random-words.rb --in test-random-words.csv --count 100000 | cut -d, -f2 | ruby split.rb --out test-random-words.out /dev/stdin
+
+test-random-words.ok: test-random-words.out test-random-words.vfy
+	./csv_cmp.rb -a test-random-words.out -b test-random-words.vfy --rel 0.01 > $@
 
 words-%.db : tally.rb freqcount.rb words.csv
 	./tally.rb --length $* --save $@ --csv words.csv
