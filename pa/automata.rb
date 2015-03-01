@@ -1,6 +1,4 @@
-require_relative 'states'
-
-class Automota
+class Automata
   def initialize
     @random = nil
   end

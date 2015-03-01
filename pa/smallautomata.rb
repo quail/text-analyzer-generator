@@ -1,7 +1,7 @@
-require_relative 'automota'
+require_relative 'automata'
 require 'set'
 
-class SmallAutomota < Automota
+class SmallAutomata < Automata
   def initialize
     @forward = Hash.new()
     @reverse = Hash.new()
