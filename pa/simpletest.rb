@@ -39,26 +39,21 @@ def words(pa,count)
   return words
 end
 
+
 def stats(pa,n,m)
   all_words = Hash.new()
-  m.times do
+  m.times do |trial|
     words(pa,n).each do |word,count|
       if not all_words.has_key?(word) then
+        stats=Array.new(m+1,0)
         emits = []
         word.each_char { |char| emits << char }
         emits << ""
-        prob1 = pa.likelyhood(emits)
-        prob2 = count.to_f/n
-        sigma = Math.sqrt(prob1*(1-prob1)/n.to_f)
-        z = (prob2-prob1)/sigma
-        all_words[word]=[prob1,sigma,z]
+        stats[0] = pa.likelyhood(emits)
+        stats[trial+1] = count
+        all_words[word] = stats
       else
-        stats = all_words[word]
-        prob1 = stats[0]
-        sigma = stats[1]
-        prob2 = count.to_f/n
-        z = (prob2-prob1)/sigma
-        all_words[word] << z
+        all_words[word][trial+1] = count
       end
     end
   end
@@ -66,7 +61,7 @@ def stats(pa,n,m)
   return all_words
 end
 
-n = 1000000
+n = 1000
 m = 100
 eps = 0.1
 
@@ -74,13 +69,17 @@ pa = SimplePA()
 
 words = stats(pa,n,m)
 
+log_P = Array.new(m,0.0)
 words.each do |word,stats|
   prob = stats[0]
-  sigma = stats[1]
+  sigma = Math.sqrt(prob*(1-prob)/n)
   sum0 = 0
   sum1 = 0
   sum2 = 0
-  stats[2..-1].each do |z|
+  stats[1..-1].each_with_index do |c,i|
+    p=c.to_f/n.to_f
+    log_P[i-1] += log_factorial(n-1)-log_factorial(c)+c*Math.log(p)
+    z=(p-prob)/sigma
     sum0 += 1
     sum1 += z
     sum2 += z*z

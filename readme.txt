@@ -1,3 +1,10 @@
+#
+# asana - project managment (password)
+# sharelatex - what it sounds like (passwordProject)
+# drive.google.com (passwordProject)
+# github.com (text-analyzer-generator)
+#
+
 # Warren MacEvoy -- script tools
 #
 # Use --help on scripts to get more options
@@ -19,12 +26,10 @@ lorem.rb
   
     ./lorem.rb --load hee.db --count 10
   
+lorems.rb
+   generates words in rough order of probabilty (depth-first traversal)
+   for given probability table.
 
 
-  
-  
-words.txt:
-     When you're right, you're right!
-     Surely I am; and don't call me shirley.
-  example output
-     
+freqcount.rb
+   general class the above scripts use.

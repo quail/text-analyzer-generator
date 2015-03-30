@@ -19,7 +19,7 @@ class Automata
   end
 
   def forward(state)
-    raise "error"
+    return []
   end
 
   def start

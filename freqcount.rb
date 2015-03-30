@@ -8,6 +8,32 @@ class FreqCount
     @at = Array.new(@length,:start)
   end
 
+  def get_length
+    return @length
+  end
+
+  def _each(at,tmp,&block)
+    if at.length == @length-1 then
+      total = 0
+      tmp.each { |char,freq| total = total + freq }
+      tmp.each do |char,freq|
+        at << char
+        yield at,freq,total
+        at.pop
+      end
+    else
+      tmp.each do |char,tmp1|
+        at << char
+        _each(at,tmp1,&block)
+        at.pop
+      end
+    end
+  end
+
+  def each(&block)
+    _each(Array.new(),@weights,&block)
+  end
+
   def _process(char,weight)
     tmp=@weights
     @at.shift
@@ -53,15 +79,15 @@ class FreqCount
     tmp.each do |char,weight|
       p1 = p*weight/total
       if char == :end then
-        if pmin <= p1 and p1 < pmax then
+        if pmin < p1 and p1 <= pmax then
           yield word,p1
         end
-      elsif (p1 >= pmin) then
+      elsif (pmin < p1) then
         word1 = word.dup
         word1 << char
         at1 = at.dup
-        at1.shift
         at1 << char
+        at1.shift
         _lorems(pmin,pmax,p1,at1,word1,&block)
       end
     end
@@ -103,6 +129,41 @@ class FreqCount
     return [word,prob]
   end
   def to_s
-    "[length=#{@length}, total=#{@total}]: #{@weights}"
+    "[length=#{@length}]: #{@weights}"
+  end
+
+  def likelyhood(word)
+    index=0
+    prob=1
+    @at = Array.new(@length,:start)
+    while @at.last != :end and prob != 0 do
+      @at.shift
+      tmp=@weights
+      @at.each do |sk|
+        tmp=tmp[sk]
+      end
+      total = 0
+      if index < word.length then
+        car = word[index]
+      else
+        car = :end
+      end
+
+      tmp.each { |char,weight| total = total + weight }
+      found = false
+      tmp.each do |char,weight|
+        if car == char then
+          found = true
+          @at << char
+          prob = prob * (weight/total)
+          break
+        end
+      end
+      if not found then
+        prob  = 0
+      end
+      index = index + 1
+    end
+    return prob
   end
 end

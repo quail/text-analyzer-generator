@@ -2,6 +2,7 @@ require_relative 'automata'
 require 'set'
 
 class SmallAutomata < Automata
+
   def initialize
     @forward = Hash.new()
     @reverse = Hash.new()

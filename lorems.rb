@@ -50,9 +50,6 @@ fc.load(options[:load])
 csv = CSV.new(options[:csv])
 pmin=options[:pmin]
 pmax=options[:pmax]
-if pmax == 1.0 then
-  pmax = 2.0
-end
 
 sum0=0.0
 sum1=0.0
