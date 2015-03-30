@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="1265.21">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 13.0px; font: 13.0px Courier; color: #800000}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 13.0px; font: 13.0px Courier; background-color: #e8e8e8}
+    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 13.0px; font: 13.0px Courier; color: #4665a2}
+    p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 13.0px; font: 13.0px Courier; color: #806020}
+    p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 13.0px; font: 13.0px Courier}
+    p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 13.0px; font: 13.0px Courier; color: #604020}
+    p.p7 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 13.0px; font: 13.0px Courier; color: #002080}
+    span.s1 {background-color: transparent}
+    span.s2 {color: #000000; background-color: #e8e8e8}
+    span.s3 {color: #000000}
+    span.s4 {color: #806020}
+    span.s5 {color: #4665a2}
+    span.s6 {background-color: #e8e8e8}
+    span.s7 {color: #008000}
+    span.s8 {color: #4665a2; background-color: #d8d8d8}
+    span.s9 {color: #604020}
+    span.s10 {color: #e08000}
+    span.s11 {color: #800000}
+  </style>
+</head>
+<body>
+<p class="p1">/* erf.c<span class="Apple-converted-space">  </span>- public domain implementation of error function erf(3m)</p>
+<p class="p2"><span class="Apple-converted-space">    </span>2<span class="s1"> </span></p>
+<p class="p1"><span class="s2"><span class="Apple-converted-space">    </span>3</span><span class="s3"> </span>reference - Haruhiko Okumura: C-gengo niyoru saishin algorithm jiten</p>
+<p class="p1"><span class="s2"><span class="Apple-converted-space">    </span>4</span><span class="s3"> </span><span class="Apple-converted-space">            </span>(New Algorithm handbook in C language) (Gijyutsu hyouron</p>
+<p class="p1"><span class="s2"><span class="Apple-converted-space">    </span>5</span><span class="s3"> </span><span class="Apple-converted-space">            </span>sha, Tokyo, 1991) p.227 [in Japanese] <span class="Apple-converted-space">                </span>*/</p>
+<p class="p3"><span class="s2"><span class="Apple-converted-space">    </span>6</span><span class="s3"> </span><span class="s4">#include "<a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/d3/d90/missing_8h.html"><span class="s5">ruby/missing.h</span></a>"</span></p>
+<p class="p4"><span class="s2"><span class="Apple-converted-space">    </span>7</span><span class="s3"> </span>#include &lt;stdio.h&gt;</p>
+<p class="p4"><span class="s2"><span class="Apple-converted-space">    </span>8</span><span class="s3"> </span>#include &lt;math.h&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span>9<span class="s1"> </span></p>
+<p class="p4"><span class="s2"><span class="Apple-converted-space">   </span>10</span><span class="s3"> </span>#ifdef _WIN32</p>
+<p class="p4"><span class="s2"><span class="Apple-converted-space">   </span>11</span><span class="s3"> </span># include &lt;float.h&gt;</p>
+<p class="p4"><span class="s2"><span class="Apple-converted-space">   </span>12</span><span class="s3"> </span># if !defined __MINGW32__ || defined __NO_ISOCEXT</p>
+<p class="p4"><span class="s2"><span class="Apple-converted-space">   </span>13</span><span class="s3"> </span>#<span class="Apple-converted-space">  </span>ifndef isnan</p>
+<p class="p4"><span class="s2"><span class="Apple-converted-space">   </span>14</span><span class="s3"> </span># <span class="Apple-converted-space">  </span>define isnan(x) _isnan(x)</p>
+<p class="p4"><span class="s2"><span class="Apple-converted-space">   </span>15</span><span class="s3"> </span>#<span class="Apple-converted-space">  </span>endif</p>
+<p class="p4"><span class="s2"><span class="Apple-converted-space">   </span>16</span><span class="s3"> </span>#<span class="Apple-converted-space">  </span>ifndef isinf</p>
+<p class="p4"><span class="s2"><span class="Apple-converted-space">   </span>17</span><span class="s3"> </span># <span class="Apple-converted-space">  </span>define isinf(x) (!_finite(x) &amp;&amp; !_isnan(x))</p>
+<p class="p4"><span class="s2"><span class="Apple-converted-space">   </span>18</span><span class="s3"> </span>#<span class="Apple-converted-space">  </span>endif</p>
+<p class="p4"><span class="s2"><span class="Apple-converted-space">   </span>19</span><span class="s3"> </span>#<span class="Apple-converted-space">  </span>ifndef finite</p>
+<p class="p4"><span class="s2"><span class="Apple-converted-space">   </span>20</span><span class="s3"> </span># <span class="Apple-converted-space">  </span>define finite(x) _finite(x)</p>
+<p class="p4"><span class="s2"><span class="Apple-converted-space">   </span>21</span><span class="s3"> </span>#<span class="Apple-converted-space">  </span>endif</p>
+<p class="p4"><span class="s2"><span class="Apple-converted-space">   </span>22</span><span class="s3"> </span># endif</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>23</span> <span class="s4">#endif</span></p>
+<p class="p2"><span class="Apple-converted-space">   </span>24<span class="s1"> </span></p>
+<p class="p6"><span class="s2"><span class="Apple-converted-space">   </span>25</span><span class="s3"> </span><span class="s7">static</span><span class="s3"> </span>double<span class="s3"> <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#aa2417338852b65efc862b7cab59d216a"><span class="s5">q_gamma</span></a>(</span>double<span class="s3">, </span>double<span class="s3">, </span>double<span class="s3">);</span></p>
+<p class="p2"><span class="Apple-converted-space">   </span>26<span class="s1"> </span></p>
+<p class="p1"><span class="s2"><span class="Apple-converted-space">   </span>27</span><span class="s3"> </span>/* Incomplete gamma function</p>
+<p class="p1"><span class="s2"><span class="Apple-converted-space">   </span>28</span><span class="s3"> </span> <span class="Apple-converted-space">  </span>1 / Gamma(a) * Int_0^x exp(-t) t^(a-1) dt<span class="Apple-converted-space">  </span>*/</p>
+<p class="p5"><span class="s8"><a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#a2f5e1b011eda67f1fbd1b524b82dafb5"><span class="Apple-converted-space">   </span>29</a></span> <span class="s7">static</span> <span class="s9">double</span> <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#a2f5e1b011eda67f1fbd1b524b82dafb5"><span class="s5">p_gamma</span></a>(<span class="s9">double</span> a, <span class="s9">double</span> x, <span class="s9">double</span> loggamma_a)</p>
+<p class="p2"><span class="Apple-converted-space">   </span>30<span class="s1"> {</span></p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>31</span> <span class="Apple-converted-space">    </span><span class="s9">int</span> k;</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>32</span> <span class="Apple-converted-space">    </span><span class="s9">double</span> <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/d8/d90/nkf_8c.html#a5ea5ac7abf5cce39283e422add1067d5"><span class="s5">result</span></a>, term, previous;</p>
+<p class="p2"><span class="Apple-converted-space">   </span>33<span class="s1"> </span></p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>34</span> <span class="Apple-converted-space">    </span><span class="s10">if</span> (x &gt;= 1 + a) <span class="s10">return</span> 1 - <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#aa2417338852b65efc862b7cab59d216a"><span class="s5">q_gamma</span></a>(a, x, loggamma_a);</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>35</span> <span class="Apple-converted-space">    </span><span class="s10">if</span> (x == 0) <span class="Apple-converted-space">    </span><span class="s10">return</span> 0;</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>36</span> <span class="Apple-converted-space">    </span>result = term = exp(a * log(x) - x - loggamma_a) / a;</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>37</span> <span class="Apple-converted-space">    </span><span class="s10">for</span> (k = 1; k &lt; 1000; k++) {</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>38</span> <span class="Apple-converted-space">        </span>term *= x / (a + k);</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>39</span> <span class="Apple-converted-space">        </span>previous = <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/d8/d90/nkf_8c.html#a5ea5ac7abf5cce39283e422add1067d5"><span class="s5">result</span></a>;<span class="Apple-converted-space">  </span>result += term;</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>40</span> <span class="Apple-converted-space">        </span><span class="s10">if</span> (result == previous) <span class="s10">return</span> <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/d8/d90/nkf_8c.html#a5ea5ac7abf5cce39283e422add1067d5"><span class="s5">result</span></a>;</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>41</span> <span class="Apple-converted-space">    </span>}</p>
+<p class="p7"><span class="s2"><span class="Apple-converted-space">   </span>42</span><span class="s3"> <span class="Apple-converted-space">    </span>fprintf(stderr, </span>"erf.c:%d:p_gamma() could not converge."<span class="s3">, __LINE__);</span></p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>43</span> <span class="Apple-converted-space">    </span><span class="s10">return</span> <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/d8/d90/nkf_8c.html#a5ea5ac7abf5cce39283e422add1067d5"><span class="s5">result</span></a>;</p>
+<p class="p2"><span class="Apple-converted-space">   </span>44<span class="s1"> }</span></p>
+<p class="p2"><span class="Apple-converted-space">   </span>45<span class="s1"> </span></p>
+<p class="p1"><span class="s2"><span class="Apple-converted-space">   </span>46</span><span class="s3"> </span>/* Incomplete gamma function</p>
+<p class="p1"><span class="s2"><span class="Apple-converted-space">   </span>47</span><span class="s3"> </span> <span class="Apple-converted-space">  </span>1 / Gamma(a) * Int_x^inf exp(-t) t^(a-1) dt<span class="Apple-converted-space">  </span>*/</p>
+<p class="p5"><span class="s8"><a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#aa2417338852b65efc862b7cab59d216a"><span class="Apple-converted-space">   </span>48</a></span> <span class="s7">static</span> <span class="s9">double</span> <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#aa2417338852b65efc862b7cab59d216a"><span class="s5">q_gamma</span></a>(<span class="s9">double</span> a, <span class="s9">double</span> x, <span class="s9">double</span> loggamma_a)</p>
+<p class="p2"><span class="Apple-converted-space">   </span>49<span class="s1"> {</span></p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>50</span> <span class="Apple-converted-space">    </span><span class="s9">int</span> k;</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>51</span> <span class="Apple-converted-space">    </span><span class="s9">double</span> <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/d8/d90/nkf_8c.html#a5ea5ac7abf5cce39283e422add1067d5"><span class="s5">result</span></a>, w, temp, previous;</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>52</span> <span class="Apple-converted-space">    </span><span class="s9">double</span> la = 1, lb = 1 + x - a;<span class="Apple-converted-space">  </span><span class="s11">/* Laguerre polynomial */</span></p>
+<p class="p2"><span class="Apple-converted-space">   </span>53<span class="s1"> </span></p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>54</span> <span class="Apple-converted-space">    </span><span class="s10">if</span> (x &lt; 1 + a) <span class="s10">return</span> 1 - <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#a2f5e1b011eda67f1fbd1b524b82dafb5"><span class="s5">p_gamma</span></a>(a, x, loggamma_a);</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>55</span> <span class="Apple-converted-space">    </span>w = exp(a * log(x) - x - loggamma_a);</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>56</span> <span class="Apple-converted-space">    </span>result = w / lb;</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>57</span> <span class="Apple-converted-space">    </span><span class="s10">for</span> (k = 2; k &lt; 1000; k++) {</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>58</span> <span class="Apple-converted-space">        </span>temp = ((k - 1 - a) * (lb - la) + (k + x) * lb) / k;</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>59</span> <span class="Apple-converted-space">        </span>la = lb;<span class="Apple-converted-space">  </span>lb = temp;</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>60</span> <span class="Apple-converted-space">        </span>w *= (k - 1 - a) / k;</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>61</span> <span class="Apple-converted-space">        </span>temp = w / (la * lb);</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>62</span> <span class="Apple-converted-space">        </span>previous = <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/d8/d90/nkf_8c.html#a5ea5ac7abf5cce39283e422add1067d5"><span class="s5">result</span></a>;<span class="Apple-converted-space">  </span>result += temp;</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>63</span> <span class="Apple-converted-space">        </span><span class="s10">if</span> (result == previous) <span class="s10">return</span> <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/d8/d90/nkf_8c.html#a5ea5ac7abf5cce39283e422add1067d5"><span class="s5">result</span></a>;</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>64</span> <span class="Apple-converted-space">    </span>}</p>
+<p class="p7"><span class="s2"><span class="Apple-converted-space">   </span>65</span><span class="s3"> <span class="Apple-converted-space">    </span>fprintf(stderr, </span>"erf.c:%d:q_gamma() could not converge."<span class="s3">, __LINE__);</span></p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>66</span> <span class="Apple-converted-space">    </span><span class="s10">return</span> <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/d8/d90/nkf_8c.html#a5ea5ac7abf5cce39283e422add1067d5"><span class="s5">result</span></a>;</p>
+<p class="p2"><span class="Apple-converted-space">   </span>67<span class="s1"> }</span></p>
+<p class="p2"><span class="Apple-converted-space">   </span>68<span class="s1"> </span></p>
+<p class="p4"><span class="s8"><a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#a966a7f590647f053619298a7c884c554"><span class="Apple-converted-space">   </span>69</a></span><span class="s3"> </span>#define LOG_PI_OVER_2 0.572364942924700087071713675675 <span class="s11">/* log_e(PI)/2 */</span></p>
+<p class="p2"><span class="Apple-converted-space">   </span>70<span class="s1"> </span></p>
+<p class="p6"><span class="s8"><a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/d7/dc0/parse_8y.html#a3206afc394d28919ee875c60c436a949"><span class="Apple-converted-space">   </span>71</a></span><span class="s3"> </span>double<span class="s3"> <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#aa8b35382a71885eed509a5f87bf5e266"><span class="s5">erf</span></a>(</span>double<span class="s3"> x)</span></p>
+<p class="p2"><span class="Apple-converted-space">   </span>72<span class="s1"> {</span></p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>73</span> <span class="Apple-converted-space">    </span><span class="s10">if</span> (!<a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/d3/d90/missing_8h.html#a92974cf7271cdbcd972c211baf210f6f"><span class="s5">finite</span></a>(x)) {</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>74</span> <span class="Apple-converted-space">        </span><span class="s10">if</span> (<a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dc/db1/win32_8h.html#a2e1baae9134e580910322362dc23290e"><span class="s5">isnan</span></a>(x)) <span class="s10">return</span> x;<span class="Apple-converted-space">      </span><span class="s11">/* erf(NaN) <span class="Apple-converted-space">  </span>= NaN <span class="Apple-converted-space">  </span>*/</span></p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>75</span> <span class="Apple-converted-space">        </span><span class="s10">return</span> (x&gt;0 ? 1.0 : -1.0); <span class="Apple-converted-space">  </span><span class="s11">/* erf(+-inf) = +-1.0 */</span></p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>76</span> <span class="Apple-converted-space">    </span>}</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>77</span> <span class="Apple-converted-space">    </span><span class="s10">if</span> (x &gt;= 0) <span class="s10">return</span> <span class="Apple-converted-space">  </span><a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#a2f5e1b011eda67f1fbd1b524b82dafb5"><span class="s5">p_gamma</span></a>(0.5, x * x, <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#a966a7f590647f053619298a7c884c554"><span class="s5">LOG_PI_OVER_2</span></a>);</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>78</span> <span class="Apple-converted-space">    </span><span class="s10">else</span><span class="Apple-converted-space">        </span><span class="s10">return</span> - <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#a2f5e1b011eda67f1fbd1b524b82dafb5"><span class="s5">p_gamma</span></a>(0.5, x * x, <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#a966a7f590647f053619298a7c884c554"><span class="s5">LOG_PI_OVER_2</span></a>);</p>
+<p class="p2"><span class="Apple-converted-space">   </span>79<span class="s1"> }</span></p>
+<p class="p2"><span class="Apple-converted-space">   </span>80<span class="s1"> </span></p>
+<p class="p6"><span class="s8"><a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/d7/dc0/parse_8y.html#ab2ce4909e68033b22fd3de49a5e6e388"><span class="Apple-converted-space">   </span>81</a></span><span class="s3"> </span>double<span class="s3"> <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#a0b6c4cfae41124da64c9a2dcc09e6045"><span class="s5">erfc</span></a>(</span>double<span class="s3"> x)</span></p>
+<p class="p2"><span class="Apple-converted-space">   </span>82<span class="s1"> {</span></p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>83</span> <span class="Apple-converted-space">    </span><span class="s10">if</span> (!<a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/d3/d90/missing_8h.html#a92974cf7271cdbcd972c211baf210f6f"><span class="s5">finite</span></a>(x)) {</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>84</span> <span class="Apple-converted-space">        </span><span class="s10">if</span> (<a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dc/db1/win32_8h.html#a2e1baae9134e580910322362dc23290e"><span class="s5">isnan</span></a>(x)) <span class="s10">return</span> x;<span class="Apple-converted-space">      </span><span class="s11">/* erfc(NaN) <span class="Apple-converted-space">  </span>= NaN<span class="Apple-converted-space">      </span>*/</span></p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>85</span> <span class="Apple-converted-space">        </span><span class="s10">return</span> (x&gt;0 ? 0.0 : 2.0);<span class="Apple-converted-space">    </span><span class="s11">/* erfc(+-inf) = 0.0, 2.0 */</span></p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>86</span> <span class="Apple-converted-space">    </span>}</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>87</span> <span class="Apple-converted-space">    </span><span class="s10">if</span> (x &gt;= 0) <span class="s10">return</span><span class="Apple-converted-space">  </span><a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#aa2417338852b65efc862b7cab59d216a"><span class="s5">q_gamma</span></a>(0.5, x * x, <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#a966a7f590647f053619298a7c884c554"><span class="s5">LOG_PI_OVER_2</span></a>);</p>
+<p class="p5"><span class="s6"><span class="Apple-converted-space">   </span>88</span> <span class="Apple-converted-space">    </span><span class="s10">else</span><span class="Apple-converted-space">        </span><span class="s10">return</span><span class="Apple-converted-space">  </span>1 + <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#a2f5e1b011eda67f1fbd1b524b82dafb5"><span class="s5">p_gamma</span></a>(0.5, x * x, <a href="http://www7333.nrlssc.navy.mil/docs/aps_v5.7/ruby/capi/html/dd/dcf/erf_8c.html#a966a7f590647f053619298a7c884c554"><span class="s5">LOG_PI_OVER_2</span></a>);</p>
+<p class="p2"><span class="Apple-converted-space">   </span>89<span class="s1"> }</span></p>
+</body>
+</html>
