@@ -7,7 +7,7 @@ aba
 abbba
 babab
 bb
-bbba
+bbba@
 abab
 abab
 aa
