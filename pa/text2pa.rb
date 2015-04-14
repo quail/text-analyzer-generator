@@ -85,16 +85,17 @@ def text2PA
     transition.each do |endState, value|
       pa.addEdge(statify(startState),statify(endState),emitify(endState),(1.0-$beta)*(value.to_f/total))
       #puts "@=#{fc['@']}"
-      pa.addEdge(statify(startState),statify(startState),'a',($beta)*((fc['a']+fc['@'])/fc[:count]))
+      pa.addEdge(statify(startState),statify(startState),'a',($beta)*((fc['a'])/fc[:count]))
+      pa.addEdge(statify(startState),statify(startState),'@',($beta)*((fc['@'])/fc[:count]))
       pa.addEdge(statify(startState),statify(startState),'b',($beta)*(fc['b']/fc[:count]))
-      totalProb = $beta*(fc['a']+fc['@'])/fc[:count]+($beta)*(fc['b']/fc[:count])+(1.0-$beta)*(value.to_f/total)
+      totalProb = $beta*(fc['@']/fc[:count])+$beta*(fc['a'])/fc[:count]+($beta)*(fc['b']/fc[:count])+(1.0-$beta)*(value.to_f/total)
       #puts "Total prob: #{totalProb}"
-      probCounter+=totalProb
+      #probCounter+=totalProb
 	    fd.write "#{startState} to #{endState}: #{value}\n"
     end
   end
   fd.close
-  puts "Probcounter: #{probCounter}"
+  puts probCounter
   return pa
 end
 
